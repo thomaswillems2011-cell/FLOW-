@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLOW — Personal Time OS</title>
+<style>
+:root{
+  --bg:#070914;--panel:rgba(17,20,38,.82);--panel2:#10142a;--line:rgba(255,255,255,.09);
+  --text:#f5f7ff;--muted:#9aa3bd;--violet:#8b5cf6;--blue:#4f7cff;--cyan:#22d3ee;
+  --green:#34d399;--yellow:#fbbf24;--red:#fb7185;--radius:22px;
+}
+*{box-sizing:border-box} body{margin:0;background:
+radial-gradient(circle at 20% 0%,rgba(91,56,190,.22),transparent 30%),
+radial-gradient(circle at 90% 20%,rgba(34,211,238,.10),transparent 25%),var(--bg);
+color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit} button{cursor:pointer}
+.app{display:flex;min-height:100vh}.sidebar{width:255px;padding:24px 16px;border-right:1px solid var(--line);background:rgba(6,8,18,.72);backdrop-filter:blur(18px);position:fixed;inset:0 auto 0 0;z-index:5}
+.logo{display:flex;align-items:center;gap:11px;padding:4px 10px 26px;font-weight:800;font-size:22px;letter-spacing:.4px}
+.logo-mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--violet),var(--cyan));box-shadow:0 0 30px rgba(139,92,246,.35);display:grid;place-items:center}
+.logo-mark span{font-size:18px}
+.nav{display:grid;gap:7px}.nav button{border:0;color:var(--muted);background:transparent;text-align:left;padding:12px 13px;border-radius:13px;display:flex;align-items:center;gap:11px;transition:.2s}
+.nav button:hover{background:rgba(255,255,255,.05);color:#fff}.nav button.active{background:linear-gradient(90deg,rgba(139,92,246,.23),rgba(79,124,255,.08));color:#fff;box-shadow:inset 2px 0 var(--violet)}
+.nav small{margin-left:auto;opacity:.55}.sidebar-bottom{position:absolute;bottom:18px;left:16px;right:16px}
+.profile-mini{padding:13px;border:1px solid var(--line);border-radius:17px;background:rgba(255,255,255,.03);display:flex;gap:10px;align-items:center}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#6d4df5,#20c7d8);font-weight:800}
+.main{margin-left:255px;width:calc(100% - 255px);padding:28px 32px 50px}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}
+.title h1{margin:0;font-size:30px;letter-spacing:-.7px}.title p{margin:7px 0 0;color:var(--muted)}
+.top-actions{display:flex;gap:9px}.icon-btn,.ghost,.primary{border:1px solid var(--line);background:rgba(255,255,255,.045);color:#fff;padding:10px 13px;border-radius:13px}
+.primary{border:0;background:linear-gradient(135deg,var(--violet),var(--blue));box-shadow:0 10px 30px rgba(90,70,220,.22)}.primary:hover{filter:brightness(1.1)}.ghost:hover,.icon-btn:hover{background:rgba(255,255,255,.08)}
+.page{display:none;animation:fade .25s ease}.page.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.grid{display:grid;gap:16px}.hero-grid{grid-template-columns:1.45fr .85fr}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}.four{grid-template-columns:repeat(4,1fr)}
+.card{background:linear-gradient(145deg,rgba(18,22,43,.9),rgba(11,14,29,.84));border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.17);backdrop-filter:blur(15px)}
+.card h2,.card h3{margin:0}.muted{color:var(--muted)}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:#a9b1ca;font-weight:700}
+.recommend{position:relative;overflow:hidden;padding:26px}.recommend:after{content:"";position:absolute;width:220px;height:220px;background:radial-gradient(circle,rgba(139,92,246,.24),transparent 65%);right:-70px;top:-90px}
+.recommend-head{display:flex;justify-content:space-between;align-items:center}.ai-pill{font-size:12px;padding:7px 10px;border-radius:999px;background:rgba(139,92,246,.16);border:1px solid rgba(139,92,246,.25);color:#cbbcff}
+.big-task{font-size:29px;font-weight:800;margin:20px 0 7px}.why{color:#bac1d3;max-width:650px;line-height:1.55}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+.stat{display:flex;justify-content:space-between;align-items:end;margin-bottom:13px}.stat strong{font-size:25px}.stat small{color:var(--muted)}
+.progress{height:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}.progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--violet),var(--cyan))}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}.metric b{display:block;font-size:18px;margin-top:5px}.metric span{font-size:12px;color:var(--muted)}
+.list{display:grid;gap:10px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.025)}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--violet);box-shadow:0 0 12px currentColor}.row-main{display:flex;align-items:center;gap:11px;min-width:0}.row-main div{min-width:0}.row-main strong{display:block}.row-main small{color:var(--muted)}.tag{font-size:11px;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.07);color:#c8cee0}
+.chart{height:170px;display:flex;align-items:end;gap:10px;padding:20px 4px 0}.bar{flex:1;min-width:8px;border-radius:8px 8px 2px 2px;background:linear-gradient(180deg,var(--violet),rgba(79,124,255,.25));position:relative}.bar span{position:absolute;bottom:-21px;width:100%;text-align:center;font-size:10px;color:var(--muted)}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.section-head h2{font-size:18px}.section-head a{color:#bcaeff;font-size:13px}
+.option-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.choice{padding:15px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:#e7e9f2;text-align:center}.choice:hover,.choice.selected{border-color:rgba(139,92,246,.55);background:rgba(139,92,246,.12)}
+.choice b{display:block;margin-top:7px}.choice span{font-size:12px;color:var(--muted)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.filter{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted)}.filter.active{color:#fff;background:rgba(139,92,246,.16);border-color:rgba(139,92,246,.35)}
+.agenda{display:grid;grid-template-columns:70px 1fr;gap:0;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:rgba(255,255,255,.02)}
+.times{border-right:1px solid var(--line)}.time{height:72px;padding:9px 8px;color:#7f88a3;font-size:12px;border-bottom:1px solid rgba(255,255,255,.045)}.timeline{position:relative;min-height:504px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 71px,rgba(255,255,255,.05) 72px)}
+.event{position:absolute;left:14px;right:14px;border-radius:13px;padding:10px 12px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(135deg,rgba(139,92,246,.32),rgba(79,124,255,.15));box-shadow:0 12px 25px rgba(0,0,0,.15);cursor:pointer}.event.blue{background:linear-gradient(135deg,rgba(59,130,246,.28),rgba(34,211,238,.12))}.event.green{background:linear-gradient(135deg,rgba(16,185,129,.28),rgba(34,211,238,.08))}.event small{display:block;color:#c7cce0;margin-top:4px}
+.task-input{display:flex;gap:9px}.task-input input,.search{flex:1;min-width:0;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:13px;padding:12px 13px;color:#fff;outline:none}.task-input input:focus,.search:focus{border-color:rgba(139,92,246,.6)}
+.check{width:20px;height:20px;border-radius:6px;border:1px solid #59617c;background:transparent;cursor:pointer}.check.done{background:linear-gradient(135deg,var(--violet),var(--cyan));border:0;position:relative}.check.done:after{content:"✓";font-size:13px;position:absolute;left:4px;top:0;color:#fff}
+.goal{display:flex;align-items:center;gap:13px}.goal-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:rgba(139,92,246,.13);font-size:20px}.goal-info{flex:1}.goal-info strong{display:block}.goal-info small{color:var(--muted)}.goal-percent{font-weight:800}.goal-progress{margin-top:9px}
+.modal-back{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:20;align-items:center;justify-content:center;padding:18px}.modal-back.show{display:flex}.modal{width:min(620px,100%);background:#10142a;border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 30px 100px rgba(0,0,0,.5)}
+.modal-head{display:flex;justify-content:space-between;align-items:center}.modal p{color:var(--muted);line-height:1.6}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.toast{position:fixed;right:22px;bottom:22px;background:#151a31;border:1px solid var(--line);padding:13px 16px;border-radius:14px;box-shadow:0 20px 50px #0008;transform:translateY(20px);opacity:0;pointer-events:none;transition:.25s;z-index:30}.toast.show{transform:none;opacity:1}
+.mobile-nav{display:none}
+@media(max-width:950px){.sidebar{display:none}.main{margin-left:0;width:100%;padding:20px 15px 85px}.hero-grid,.two,.three{grid-template-columns:1fr}.four{grid-template-columns:1fr 1fr}.option-grid{grid-template-columns:repeat(2,1fr)}.mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:10;background:rgba(8,10,22,.92);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:8px;justify-content:space-around}.mobile-nav button{border:0;background:transparent;color:var(--muted);font-size:11px}.mobile-nav button.active{color:#fff}.mobile-nav i{display:block;font-style:normal;font-size:20px;margin-bottom:2px}.summary{grid-template-columns:1fr 1fr}.topbar{align-items:flex-start}.top-actions .ghost{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo"><div class="logo-mark"><span>✦</span></div> FLOW</div>
+  <nav class="nav" id="nav">
+    <button class="active" data-page="home">🏠 <span>Accueil</span></button>
+    <button data-page="free">⚡ <span>Temps libre</span></button>
+    <button data-page="calendar">📅 <span>Agenda</span></button>
+    <button data-page="manage">🧠 <span>Gérer mon temps</span></button>
+    <button data-page="adapt">✨ <span>Adapter mon planning</span></button>
+    <button data-page="goals">🎯 <span>Profil & objectifs</span></button>
+    <button data-page="test">🧩 <span>Mon test FLOW</span></button>
+    <button data-page="stats">📊 <span>Progression</span></button>
+    <button data-page="settings">⚙️ <span>Paramètres</span></button>
+  </nav>
+  <div class="sidebar-bottom"><div class="profile-mini"><div class="avatar">A</div><div><b>Alex</b><div class="muted" style="font-size:12px">Profil FLOW · Actif</div></div></div></div>
+</aside>
+
+<main class="main">
+<div class="topbar">
+  <div class="title"><h1 id="pageTitle">Bonjour 👋</h1><p id="pageSub">Voici ce qui compte maintenant.</p></div>
+  <div class="top-actions"><button class="ghost" onclick="openSearch()">⌕ Recherche</button><button class="icon-btn" onclick="toast('Aucune nouvelle notification ✨')">🔔</button><button class="primary" onclick="navigate('free')">+ Action rapide</button></div>
+</div>
+
+<section class="page active" id="home">
+<div class="grid hero-grid">
+  <div class="card recommend">
+    <div class="recommend-head"><span class="ai-pill">🤖 FLOW recommande</span><span class="muted">Maintenant</span></div>
+    <div class="big-task">45 min — Python</div>
+    <div class="why">Tu as un créneau libre de 16h30 à 17h15 et Python fait partie de tes objectifs actifs.</div>
+    <div class="actions"><button class="primary" onclick="startTask('Python')">Commencer</button><button class="ghost" onclick="openModal('Modifier la recommandation','Choisis une durée ou une autre activité.','Modifier')">Modifier</button><button class="ghost" onclick="toast('Recommandation ignorée')">Ignorer</button><button class="ghost" onclick="openModal('Pourquoi FLOW propose ça ?','Tu as un créneau libre, Python est un objectif actif et ton profil indique que tu avances bien avec des sessions de 30 à 60 minutes.','Compris')">Voir pourquoi</button></div>
+  </div>
+  <div class="card">
+    <div class="section-head"><h2>Résumé de la journée</h2><span class="tag">Aujourd'hui</span></div>
+    <div class="summary">
+      <div class="metric">🧠<b>2h15</b><span>Travail</span></div><div class="metric">🎯<b>1h20</b><span>Objectifs</span></div>
+      <div class="metric">🏃<b>1h</b><span>Sport</span></div><div class="metric">☁️<b>1h45</b><span>Libre</span></div>
+    </div>
+    <div style="margin-top:18px"><div class="stat"><small>Journée organisée</small><strong>68%</strong></div><div class="progress"><span style="width:68%"></span></div></div>
+  </div>
+</div>
+<div class="grid two" style="margin-top:16px">
+  <div class="card"><div class="section-head"><h2>Prochainement</h2><a onclick="navigate('calendar')">Voir agenda →</a></div>
+    <div class="list">
+      <div class="row"><div class="row-main"><span class="dot"></span><div><strong>Mathématiques</strong><small>17h30 → 18h30 · Études</small></div></div><span class="tag">Priorité</span></div>
+      <div class="row"><div class="row-main"><span class="dot" style="background:var(--green)"></span><div><strong>Sport</strong><small>18h30 → 19h30 · Énergie</small></div></div><span class="tag">Routine</span></div>
+      <div class="row"><div class="row-main"><span class="dot" style="background:var(--cyan)"></span><div><strong>Temps libre</strong><small>19h30 → 20h15</small></div></div><span class="tag">Flexible</span></div>
+    </div>
+  </div>
+  <div class="card"><div class="section-head"><h2>Objectifs</h2><a onclick="navigate('goals')">Tout voir →</a></div>
+    <div class="list">
+      <div class="goal"><div class="goal-icon">💻</div><div class="goal-info"><strong>Python</strong><small>Étape : fonctions</small><div class="progress goal-progress"><span style="width:62%"></span></div></div><span class="goal-percent">62%</span></div>
+      <div class="goal"><div class="goal-icon">🏃</div><div class="goal-info"><strong>Sport</strong><small>3 séances cette semaine</small><div class="progress goal-progress"><span style="width:44%"></span></div></div><span class="goal-percent">44%</span></div>
+      <div class="goal"><div class="goal-icon">🇬🇧</div><div class="goal-info"><strong>Anglais</strong><small>Vocabulaire</small><div class="progress goal-progress"><span style="width:31%"></span></div></div><span class="goal-percent">31%</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" style="margin-top:16px"><div class="section-head"><h2>Que veux-tu faire maintenant ?</h2><span class="muted">Actions rapides</span></div>
+  <div class="option-grid">
+    <button class="choice" onclick="navigate('free')">⚡<b>J'ai du temps</b><span>Construire une session</span></button>
+    <button class="choice" onclick="navigate('free');selectTime(30)">🤷<b>Je ne sais pas quoi faire</b><span>FLOW décide avec toi</span></button>
+    <button class="choice" onclick="navigate('free');selectEnergy('low')">😴<b>Je suis fatigué</b><span>Activités légères</span></button>
+    <button class="choice" onclick="navigate('free');selectIntent('Productif')">🎯<b>Être productif</b><span>Session concentrée</span></button>
+    <button class="choice" onclick="navigate('free');selectIntent('Me détendre')">🧘<b>J'ai besoin d'une pause</b><span>Récupérer vraiment</span></button>
+  </div>
+</div>
+</section>
+
+<section class="page" id="free">
+<div class="card">
+  <div class="section-head"><div><h2>⚡ Combien de temps as-tu ?</h2><p class="muted">FLOW adapte ses propositions à ton créneau.</p></div><span class="ai-pill">IA guidée</span></div>
+  <div class="option-grid" id="timeChoices">
+    <button class="choice" onclick="selectTime(5)">5 min</button><button class="choice" onclick="selectTime(10)">10 min</button><button class="choice" onclick="selectTime(15)">15 min</button><button class="choice" onclick="selectTime(20)">20 min</button><button class="choice" onclick="selectTime(30)">30 min</button><button class="choice" onclick="selectTime(45)">45 min</button><button class="choice" onclick="selectTime(60)">1 h</button><button class="choice" onclick="selectTime(75)">1 h 15</button><button class="choice" onclick="selectTime(90)">1 h 30</button><button class="choice" onclick="selectTime(120)">2 h</button>
+  </div>
+</div>
+<div class="grid two" style="margin-top:16px">
+<div class="card"><div class="section-head"><h2>Tu recherches plutôt...</h2><span class="muted">Plusieurs choix</span></div><div class="filters" id="intentChoices">
+  <button class="filter" onclick="selectIntent('Productif')">Productif</button><button class="filter" onclick="selectIntent('Avancer mes objectifs')">Objectifs</button><button class="filter" onclick="selectIntent('Apprendre')">Apprendre</button><button class="filter" onclick="selectIntent('Réviser')">Réviser</button><button class="filter" onclick="selectIntent('Faire du sport')">Sport</button><button class="filter" onclick="selectIntent('Me détendre')">Détente</button><button class="filter" onclick="selectIntent('Nouveau')">Nouveau</button>
+</div></div>
+<div class="card"><div class="section-head"><h2>Niveau d'énergie</h2><span class="muted">Optionnel</span></div><div class="filters"><button class="filter" onclick="selectEnergy('low')">🔋 Faible</button><button class="filter active" onclick="selectEnergy('mid')">🔋🔋 Moyen</button><button class="filter" onclick="selectEnergy('high')">🔋🔋🔋 Élevé</button></div></div>
+</div>
+<div class="card" style="margin-top:16px"><div class="section-head"><h2>✨ Propositions FLOW</h2><span id="freeSummary" class="muted">Choisis un créneau</span></div><div class="grid three" id="proposals"></div></div>
+</section>
+
+<section class="page" id="calendar">
+<div class="card"><div class="section-head"><div><h2>📅 Agenda</h2><p class="muted">Mardi 22 septembre · Semaine 39</p></div><div class="filters" style="margin:0"><button class="filter active">Jour</button><button class="filter">3 jours</button><button class="filter">Semaine</button></div></div>
+<div class="agenda"><div class="times"><div class="time">16h</div><div class="time">17h</div><div class="time">18h</div><div class="time">19h</div><div class="time">20h</div><div class="time">21h</div><div class="time">22h</div></div>
+<div class="timeline" id="timeline">
+<div class="event" style="top:8px;height:64px" onclick="editEvent('Mathématiques','16h30 → 17h30')"><b>Mathématiques</b><small>16h30 → 17h30 · Études</small></div>
+<div class="event blue" style="top:80px;height:42px" onclick="editEvent('Pause','17h30 → 17h45')"><b>Pause</b><small>17h30 → 17h45</small></div>
+<div class="event" style="top:92px;height:48px;left:32%;right:10%" onclick="editEvent('Python','17h45 → 18h30')"><b>Python</b><small>17h45 → 18h30 · Objectif</small></div>
+<div class="event green" style="top:152px;height:64px" onclick="editEvent('Sport','18h30 → 19h30')"><b>Sport</b><small>18h30 → 19h30</small></div>
+<div class="event blue" style="top:224px;height:50px" onclick="editEvent('Temps libre','19h30 → 20h15')"><b>Temps libre</b><small>19h30 → 20h15</small></div>
+</div></div></div>
+</section>
+
+<section class="page" id="manage">
+<div class="grid two">
+<div class="card"><div class="section-head"><h2>🧠 Mes tâches</h2><span class="tag" id="taskCount">4</span></div>
+<div class="task-input"><input id="taskInput" placeholder="Ajouter rapidement : Maths, Python..." onkeydown="if(event.key==='Enter')addTask()"><button class="primary" onclick="addTask()">Ajouter</button></div>
+<div class="list" id="taskList" style="margin-top:14px"></div>
+</div>
+<div class="card"><div class="section-head"><div><h2>🤖 Organiser mon temps</h2><p class="muted">FLOW analyse deadlines, durée, objectifs et énergie.</p></div></div>
+<div class="list"><div class="row"><div><strong>16h00 — Maths</strong><small>60 min · Important · demain</small></div><span class="tag">Urgent</span></div><div class="row"><div><strong>17h00 — Pause</strong><small>15 min · récupération</small></div><span class="tag">Pause</span></div><div class="row"><div><strong>17h15 — Anglais</strong><small>30 min · objectif</small></div><span class="tag">Objectif</span></div><div class="row"><div><strong>17h45 — Python</strong><small>45 min · étape active</small></div><span class="tag">FLOW</span></div></div>
+<div class="actions"><button class="primary" onclick="openModal('Nouvelle organisation proposée','Maths 60 min → 16h00 · Anglais 30 min → 17h15 · Python 45 min → 17h45 · Sport 1h → 18h30.','Valider')">✨ Organiser mon temps</button><button class="ghost" onclick="toast('Proposition prête à être modifiée')">Modifier</button></div>
+</div></div>
+</section>
+
+<section class="page" id="adapt">
+<div class="card"><div class="section-head"><div><h2>✨ Adapter mon planning</h2><p class="muted">FLOW prépare une proposition sans modifier ton planning immédiatement.</p></div></div>
+<div class="option-grid">
+<button class="choice" onclick="adapt('moins')">➖<b>Moins de temps</b><span>J'ai 45 min de moins</span></button>
+<button class="choice" onclick="adapt('plus')">➕<b>Plus de temps</b><span>J'ai 1h de plus</span></button>
+<button class="choice" onclick="adapt('annule')">❌<b>Tâche annulée</b><span>Retirer un bloc</span></button>
+<button class="choice" onclick="adapt('rdv')">📅<b>Nouveau rendez-vous</b><span>Bloquer un créneau</span></button>
+<button class="choice" onclick="adapt('long')">⏱<b>Tâche plus longue</b><span>Elle prend 2× plus</span></button>
+</div></div>
+<div class="card" style="margin-top:16px"><div class="section-head"><h2>Nouvelle organisation proposée</h2><span class="ai-pill">Prévisualisation</span></div><div id="adaptResult"><p class="muted">Choisis un changement ci-dessus pour voir l'impact.</p></div></div>
+</section>
+
+<section class="page" id="goals">
+<div class="grid two">
+<div class="card"><div class="section-head"><h2>🎯 Mes objectifs</h2><button class="primary" onclick="openModal('Créer un objectif','Exemple : Apprendre Python. FLOW pourra ensuite le transformer en étapes.','Créer')">+ Ajouter</button></div>
+<div class="list">
+<div class="row"><div class="goal"><div class="goal-icon">💻</div><div class="goal-info"><strong>Apprendre Python</strong><small>Étape actuelle : fonctions</small><div class="progress goal-progress"><span style="width:62%"></span></div></div></div><b>62%</b></div>
+<div class="row"><div class="goal"><div class="goal-icon">🏃</div><div class="goal-info"><strong>Sport</strong><small>3 séances / semaine</small><div class="progress goal-progress"><span style="width:44%"></span></div></div></div><b>44%</b></div>
+<div class="row"><div class="goal"><div class="goal-icon">🇬🇧</div><div class="goal-info"><strong>Anglais</strong><small>Vocabulaire et écoute</small><div class="progress goal-progress"><span style="width:31%"></span></div></div></div><b>31%</b></div>
+</div></div>
+<div class="card"><div class="section-head"><h2>Profil FLOW</h2><span class="tag">Personnalisable</span></div><div class="list">
+<div class="row"><span>⚡ Énergie</span><b>Élevée l'après-midi</b></div><div class="row"><span>⏱ Sessions</span><b>30–60 min</b></div><div class="row"><span>🧩 Organisation</span><b>Flexible</b></div><div class="row"><span>📚 Apprentissage</span><b>Pratique</b></div><div class="row"><span>✨ Préférence</span><b>2–3 propositions</b></div><div class="row"><span>☕ Pause</span><b>Régulière</b></div>
+</div><div class="actions"><button class="ghost" onclick="navigate('test')">Refaire mon test</button><button class="primary" onclick="toast('Profil enregistré')">Modifier le profil</button></div></div>
+</div>
+</section>
+
+<section class="page" id="test">
+<div class="card"><div class="section-head"><div><h2>🧩 Mon test FLOW</h2><p class="muted">Une question par écran pour comprendre ton fonctionnement.</p></div><span id="qCounter" class="tag">Question 1 / 10</span></div>
+<div class="progress" style="margin:18px 0 28px"><span id="testProgress" style="width:10%"></span></div>
+<div id="questionBox"></div>
+</div></section>
+
+<section class="page" id="stats">
+<div class="grid four">
+<div class="card"><div class="eyebrow">Cette semaine</div><h2 style="margin-top:8px">11h15</h2><p class="muted">temps consacré aux objectifs</p></div>
+<div class="card"><div class="eyebrow">Tâches terminées</div><h2 style="margin-top:8px">24</h2><p class="muted">+6 vs semaine passée</p></div>
+<div class="card"><div class="eyebrow">Temps libre</div><h2 style="margin-top:8px">5h40</h2><p class="muted">créneaux réellement libres</p></div>
+<div class="card"><div class="eyebrow">Prévu / réel</div><h2 style="margin-top:8px">87%</h2><p class="muted">précision estimée</p></div>
+</div>
+<div class="grid two" style="margin-top:16px">
+<div class="card"><div class="section-head"><h2>Temps par catégorie</h2><span class="muted">7 jours</span></div><div class="chart"><div class="bar" style="height:55%"><span>Lun</span></div><div class="bar" style="height:72%"><span>Mar</span></div><div class="bar" style="height:45%"><span>Mer</span></div><div class="bar" style="height:88%"><span>Jeu</span></div><div class="bar" style="height:65%"><span>Ven</span></div><div class="bar" style="height:40%"><span>Sam</span></div><div class="bar" style="height:30%"><span>Dim</span></div></div></div>
+<div class="card"><div class="section-head"><h2>Historique</h2><span class="muted">Cette semaine</span></div><div class="list"><div class="row"><span>Maths</span><b>3h20</b></div><div class="row"><span>Python</span><b>2h10</b></div><div class="row"><span>Sport</span><b>4h30</b></div><div class="row"><span>Anglais</span><b>1h15</b></div><div class="row"><span>Temps libre</span><b>5h40</b></div></div></div>
+</div>
+</section>
+
+<section class="page" id="settings">
+<div class="grid two">
+<div class="card"><div class="section-head"><h2>⚙️ Paramètres</h2></div><div class="list">
+<div class="row"><span>🎨 Thème</span><select class="search" style="max-width:160px"><option>Sombre</option><option>Clair</option></select></div>
+<div class="row"><span>🤖 Intervention de FLOW</span><select class="search" style="max-width:160px"><option>Normal</option><option>Minimal</option><option>Actif</option><option>Très actif</option></select></div>
+<div class="row"><span>🔔 Notifications</span><button class="filter active" onclick="this.classList.toggle('active')">Activées</button></div>
+<div class="row"><span>⏱ Durée préférée</span><b>45 min</b></div>
+</div></div>
+<div class="card"><div class="section-head"><h2>🛡️ Contrôle utilisateur</h2></div><p class="muted">FLOW propose ; tu décides. Les changements importants restent validables avant application.</p><div class="actions"><button class="primary" onclick="toast('Préférences enregistrées')">Enregistrer</button></div></div>
+</div>
+</section>
+</main>
+</div>
+
+<div class="mobile-nav" id="mobileNav"><button class="active" data-page="home"><i>🏠</i>Accueil</button><button data-page="free"><i>⚡</i>Libre</button><button data-page="calendar"><i>📅</i>Agenda</button><button data-page="manage"><i>🧠</i>Tâches</button><button data-page="goals"><i>🎯</i>Objectifs</button></div>
+
+<div class="modal-back" id="modalBack"><div class="modal"><div class="modal-head"><h2 id="modalTitle"></h2><button class="icon-btn" onclick="closeModal()">✕</button></div><p id="modalText"></p><div class="modal-actions"><button class="ghost" onclick="closeModal()">Annuler</button><button class="primary" id="modalAction" onclick="closeModal()">Compris</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const titles={home:['Bonjour 👋','Voici ce qui compte maintenant.'],free:['Temps libre ⚡','Dis-moi ton créneau, FLOW construit des options.'],calendar:['Agenda 📅','Une vue claire de ta journée.'],manage:['Gérer mon temps 🧠','Dépose tout ce que tu dois faire.'],adapt:['Adapter mon planning ✨','Les changements deviennent une proposition avant validation.'],goals:['Profil & objectifs 🎯','Ton système personnel de progression.'],test:['Mon test FLOW 🧩','Quelques questions pour personnaliser tes recommandations.'],stats:['Progression 📊','Comprends comment ton temps évolue.'],settings:['Paramètres ⚙️','Configure ton expérience FLOW.']};
+function navigate(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(page).classList.add('active');document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));document.getElementById('pageTitle').textContent=titles[page][0];document.getElementById('pageSub').textContent=titles[page][1];if(page==='free')renderProposals();if(page==='test')renderQuestion();window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.page)));
+
+let freeTime=75,intent='Avancer mes objectifs',energy='mid';
+function selectTime(v){freeTime=v;document.querySelectorAll('#timeChoices .choice').forEach(b=>b.classList.remove('selected'));event?.currentTarget?.classList.add('selected');renderProposals()}
+function selectIntent(v){intent=v;document.querySelectorAll('#intentChoices .filter').forEach(b=>b.classList.toggle('active',b.textContent.includes(v)||b.textContent===v));renderProposals()}
+function selectEnergy(v){energy=v;renderProposals();toast('Niveau d’énergie pris en compte')}
+function renderProposals(){
+const el=document.getElementById('proposals');if(!el)return;
+document.getElementById('freeSummary').textContent=`${freeTime>=60?Math.floor(freeTime/60)+' h '+(freeTime%60?freeTime%60+' min':''):freeTime+' min'} · ${intent} · énergie ${energy==='low'?'faible':energy==='high'?'élevée':'moyenne'}`;
+let cards=[];
+if(energy==='low') cards=[['🧘','20 min — Pause calme','Marche, respiration ou vraie récupération.'],['🧹','15 min — Petite tâche','Une action utile et simple.'],['🇬🇧','10 min — Anglais','Réviser quelques mots sans pression.']];
+else if(intent==='Me détendre') cards=[['🎮',`${Math.min(30,freeTime)} min — Temps libre`,'Une pause choisie, sans objectif de productivité.'],['🚶',`${Math.min(20,freeTime)} min — Marche`,'Bouger légèrement pour récupérer.'],['🎵','15 min — Musique','Déconnexion courte et volontaire.']];
+else cards=[['📚',`${Math.min(45,freeTime)} min — Maths`,'Tu as une tâche importante à avancer.'],['💻',`${Math.min(30,Math.max(15,freeTime-45))} min — Python`,'Une étape active de ton objectif.'],['🇬🇧',`${Math.min(20,freeTime)} min — Anglais`,'Une petite session régulière.']];
+el.innerHTML=cards.map((c,i)=>`<div class="card" style="padding:17px"><div style="font-size:26px">${c[0]}</div><h3 style="margin-top:10px">${c[1]}</h3><p class="muted" style="line-height:1.5;min-height:45px">${c[2]}</p><div class="actions"><button class="primary" onclick="chooseProposal('${c[1].replace(/'/g,"\\'")}')">Choisir</button><button class="ghost" onclick="openModal('Pourquoi ?','${c[2].replace(/'/g,"\\'")}','Compris')">Pourquoi</button></div></div>`).join('');
+}
+function chooseProposal(name){openModal('Ajouter à l’agenda',`${name}. Quand veux-tu le faire ?\n\nMaintenant · Prochain créneau libre · Aujourd’hui à… · Demain · Choisir dans l’agenda`,'Ajouter')}
+function startTask(name){toast(`Session ${name} démarrée · bon focus ✨`);navigate('calendar')}
+function editEvent(name,time){openModal(name,`${time}\n\nModifier la durée, la catégorie, la priorité ou déplacer le bloc. Les conflits seraient vérifiés automatiquement.`,'Modifier')}
+function adapt(type){
+const data={moins:['Maths','60 → 45 min'],plus:['Python','45 → 60 min'],annule:['Temps libre','30 → 45 min'],rdv:['Temps libre','30 → 0 min'],long:['Maths','60 → 90 min']}[type];
+document.getElementById('adaptResult').innerHTML=`<div class="list"><div class="row"><b>${data[0]}</b><span>${data[1]}</span></div><div class="row"><b>Python</b><span>${type==='moins'?'45 → 30 min':'45 min'}</span></div><div class="row"><b>Sport</b><span>inchangé</span></div><div class="row"><b>Temps libre</b><span>${type==='moins'?'30 → 15 min':'30 min'}</span></div></div><div class="actions"><button class="primary" onclick="toast('Proposition appliquée')">✓ Valider</button><button class="ghost" onclick="toast('Tu peux modifier chaque bloc avant validation')">Modifier</button><button class="ghost" onclick="toast('Aucun changement appliqué')">Annuler</button></div>`;
+}
+let tasks=[['Mathématiques','60 min · Important · demain',false],['Anglais','30 min · Objectif',false],['Python','45 min · Objectif actif',true],['Ranger ma chambre','20 min · Personnel',false]];
+function renderTasks(){let el=document.getElementById('taskList');el.innerHTML=tasks.map((t,i)=>`<div class="row"><div class="row-main"><button class="check ${t[2]?'done':''}" onclick="toggleTask(${i})"></button><div><strong style="${t[2]?'text-decoration:line-through;opacity:.55':''}">${t[0]}</strong><small>${t[1]}</small></div></div><button class="icon-btn" onclick="removeTask(${i})">🗑</button></div>`).join('');document.getElementById('taskCount').textContent=tasks.length}
+function addTask(){const input=document.getElementById('taskInput'),v=input.value.trim();if(!v)return;tasks.unshift([v,'Nouvelle tâche · à organiser',false]);input.value='';renderTasks();toast('Tâche ajoutée')}
+function toggleTask(i){tasks[i][2]=!tasks[i][2];renderTasks();toast(tasks[i][2]?'Tâche terminée ✓':'Tâche rouverte')}
+function removeTask(i){tasks.splice(i,1);renderTasks()}
+renderTasks();
+
+const questions=[
+['Quand tu as 30 minutes libres, tu préfères :',['Apprendre','Avancer un objectif','Bouger','Te détendre','Jouer','Faire quelque chose de nouveau']],
+['Pour apprendre quelque chose, tu préfères :',['Exercices','Explication puis exercices','Projet concret','Vidéo','Varier']],
+['Quand es-tu généralement le plus concentré ?',['Matin','Midi','Après-midi','Soir','Ça dépend']],
+['Ton niveau d’énergie après une journée normale ?',['Élevé','Moyen','Faible','Très variable']],
+['Quand une tâche est longue :',['Je la fais d’un coup','Je la découpe','Je commence petit','Je préfère que FLOW m’aide']],
+['Qu’est-ce qui te fait repousser une tâche ?',['Trop longue','Trop difficile','Je ne sais pas commencer','Autre chose m’intéresse','Fatigue']],
+['Tu préfères quel type de planning ?',['Très précis','Flexible','Quelques priorités','Automatique']],
+['Combien de choix veux-tu recevoir de FLOW ?',['Une seule','2 ou 3','Plusieurs','Un planning complet']],
+['Combien de temps préfères-tu travailler avant une pause ?',['15 min','25 min','45 min','1h','Variable']],
+['Que veux-tu principalement améliorer ?',['Organisation','Concentration','Régularité','Productivité','Équilibre','Motivation']]
+];let qi=0;
+function renderQuestion(){let q=questions[qi];document.getElementById('qCounter').textContent=`Question ${qi+1} / ${questions.length}`;document.getElementById('testProgress').style.width=((qi+1)/questions.length*100)+'%';document.getElementById('questionBox').innerHTML=`<div style="max-width:760px"><div class="eyebrow">Question ${qi+1}</div><h2 style="font-size:28px;margin:10px 0 20px">${q[0]}</h2><div class="option-grid">${q[1].map(x=>`<button class="choice" onclick="answerQuestion('${x.replace(/'/g,"\\'")}')">${x}</button>`).join('')}</div></div>`}
+function answerQuestion(x){toast(`Réponse enregistrée : ${x}`);if(qi<questions.length-1){qi++;renderQuestion()}else{document.getElementById('questionBox').innerHTML='<div style="text-align:center;padding:35px"><div style="font-size:45px">✨</div><h2>Profil FLOW construit</h2><p class="muted">Tes préférences peuvent maintenant guider les recommandations.</p><button class="primary" onclick="navigate(\\'home\\')">Voir mon accueil</button></div>';}}
+function openModal(title,text,action){document.getElementById('modalTitle').textContent=title;document.getElementById('modalText').textContent=text;document.getElementById('modalAction').textContent=action;document.getElementById('modalBack').classList.add('show')}
+function closeModal(){document.getElementById('modalBack').classList.remove('show')}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),2200)}
+function openSearch(){openModal('Recherche globale','Recherche de tâche, objectif, événement, activité ou historique. Dans cette maquette, la recherche est simulée.','Fermer')}
+renderProposals();renderQuestion();
+</script>
+</body>
+</html>
